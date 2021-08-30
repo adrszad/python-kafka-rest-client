@@ -16,13 +16,18 @@ DEFAULT_HOST = 'localhost:8082'
 
 
 class Client(object):
-    def __init__(self, host=DEFAULT_HOST):
+    def __init__(self, host=DEFAULT_HOST, api_key=None):
         self.host = host
+        self.api_key = api_key
+        
 
     def _request(self, method, *endpoint, **kwargs):
         logging.info('requesting %s %s %s', method, endpoint, kwargs)
         host = self.host
-        response = requests.request(method, '{}/{}'.format(host, '/'.join(endpoint)), **kwargs)
+        if self.api_key is not None:
+            response = requests.request(method, '{}/{}'.format(host, '/'.join(endpoint)), params=get_api_key(), **kwargs)
+        else:
+            response = requests.request(method, '{}/{}'.format(host, '/'.join(endpoint)), **kwargs)
         logging.info('response from proxy %d: %s', response.status_code, response.text)
         if 200 <= response.status_code < 300:
             return response
@@ -43,6 +48,10 @@ class Client(object):
     def get_consumer(self, group, fmt, name):
         host = self.host
         return Consumer(self.host, group, name, fmt)
+    
+    def get_api_key(self):
+        assert self.api_key is not None
+        return {'key': self.api_key}
 
 
 class _Producer(Client):
@@ -54,7 +63,7 @@ class _Producer(Client):
 
     def produce(self, topic, *records):
         payload = self._gen_payload(records)
-        return self._request('POST', 'topics', topic, json=payload, headers=self._produce_headers).json()
+        return self._request('POST', 'topics', topic, json=payload, headers=self._produce_headers, **).json()
 
 
 class BinaryProducer(_Producer):
