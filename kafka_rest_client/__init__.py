@@ -25,7 +25,7 @@ class Client(object):
         logging.info('requesting %s %s %s', method, endpoint, kwargs)
         host = self.host
         if self.api_key is not None:
-            response = requests.request(method, '{}/{}'.format(host, '/'.join(endpoint)), params=get_api_key(), **kwargs)
+            response = requests.request(method, '{}/{}'.format(host, '/'.join(endpoint)), params=self.get_api_key(), **kwargs)
         else:
             response = requests.request(method, '{}/{}'.format(host, '/'.join(endpoint)), **kwargs)
         logging.info('response from proxy %d: %s', response.status_code, response.text)
