@@ -63,7 +63,7 @@ class _Producer(Client):
 
     def produce(self, topic, *records):
         payload = self._gen_payload(records)
-        return self._request('POST', 'topics', topic, json=payload, headers=self._produce_headers, **).json()
+        return self._request('POST', 'topics', topic, json=payload, headers=self._produce_headers).json()
 
 
 class BinaryProducer(_Producer):
