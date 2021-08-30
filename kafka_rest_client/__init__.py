@@ -23,7 +23,7 @@ class Client(object):
     def _request(self, method, *endpoint, **kwargs):
         logging.info('requesting %s %s %s', method, endpoint, kwargs)
         host = self.get_host()
-        response = requests.request(method, 'http://{}/{}'.format(host, '/'.join(endpoint)), **kwargs)
+        response = requests.request(method, '{}/{}'.format(host, '/'.join(endpoint)), **kwargs)
         logging.info('response from proxy %d: %s', response.status_code, response.text)
         if 200 <= response.status_code < 300:
             return response
@@ -50,7 +50,7 @@ class _Producer(Client):
     def __init__(self, hosts=DEFAULT_HOSTS):
         super(_Producer, self).__init__(hosts)
         self._produce_headers = {
-            'Content-Type': 'application/vnd.kafka.{}.v1+json'.format(self._format)
+            'Content-Type': 'application/vnd.kafka.{}.v2+json'.format(self._format)
         }
 
     def produce(self, topic, *records):
@@ -91,7 +91,7 @@ class Consumer(Client):
         self.name = name
         self.base_uri = 'consumers/{}/instances/{}'.format(self.group, self.name)
         self._consume_headers = {
-            'Accept': 'application/vnd.kafka.{}.v1+json'.format(fmt)
+            'Accept': 'application/vnd.kafka.{}.v2+json'.format(fmt)
         }
         if fmt == 'binary':
             self._decoder = lambda value: base64.b64decode(value)
