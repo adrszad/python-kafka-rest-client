@@ -55,8 +55,8 @@ class Client(object):
 
 
 class _Producer(Client):
-    def __init__(self, host=DEFAULT_HOST):
-        super(_Producer, self).__init__(host)
+    def __init__(self, host=DEFAULT_HOST, api_key=None):
+        super(_Producer, self).__init__(host, api_key)
         self._produce_headers = {
             'Content-Type': 'application/vnd.kafka.{}.v2+json'.format(self._format)
         }
@@ -93,8 +93,8 @@ class AvroProducer(_Producer):
 
 
 class Consumer(Client):
-    def __init__(self, host, group, name, fmt):
-        super(Consumer, self).__init__(host)
+    def __init__(self, host, group, name, fmt, api_key=None):
+        super(Consumer, self).__init__(host, api_key)
         self.group = group
         self.name = name
         self.base_uri = 'consumers/{}/instances/{}'.format(self.group, self.name)
