@@ -12,13 +12,13 @@ class ProxyError(Exception):
     pass
 
 
-DEFAULT_HOSTS = ('localhost:8082',)
+DEFAULT_HOST = 'localhost:8082'
 
 
 class Client(object):
-    def __init__(self, hosts=DEFAULT_HOSTS):
-        self.hosts = random.shuffle(hosts)
-        self.get_host = partial(next, cycle(self.hosts))
+    def __init__(self, host=DEFAULT_HOST):
+        self.host = host
+        self.get_host = self.host
 
     def _request(self, method, *endpoint, **kwargs):
         logging.info('requesting %s %s %s', method, endpoint, kwargs)
@@ -39,16 +39,16 @@ class Client(object):
             "auto.offset.reset": offset_reset,
             "auto.commit.enable": json.dumps(auto_commit),
         })
-        return Consumer(self.hosts, group, response.json()['instance_id'], fmt)
+        return Consumer(self.host, group, response.json()['instance_id'], fmt)
 
     def get_consumer(self, group, fmt, name):
         host = self.get_host()
-        return Consumer(self.hosts, group, name, fmt)
+        return Consumer(self.host, group, name, fmt)
 
 
 class _Producer(Client):
-    def __init__(self, hosts=DEFAULT_HOSTS):
-        super(_Producer, self).__init__(hosts)
+    def __init__(self, host=DEFAULT_HOST):
+        super(_Producer, self).__init__(host)
         self._produce_headers = {
             'Content-Type': 'application/vnd.kafka.{}.v2+json'.format(self._format)
         }
@@ -75,8 +75,8 @@ class JsonProducer(_Producer):
 class AvroProducer(_Producer):
     _format = 'avro'
 
-    def __init__(self, key_schema, value_schema, hosts=DEFAULT_HOSTS):
-        super(AvroProducer, self).__init__(hosts)
+    def __init__(self, key_schema, value_schema, host=DEFAULT_HOST):
+        super(AvroProducer, self).__init__(host)
         self.key_schema = json.dumps(key_schema)
         self.value_schema = json.dumps(value_schema)
 
@@ -85,8 +85,8 @@ class AvroProducer(_Producer):
 
 
 class Consumer(Client):
-    def __init__(self, hosts, group, name, fmt):
-        super(Consumer, self).__init__(hosts)
+    def __init__(self, host, group, name, fmt):
+        super(Consumer, self).__init__(host)
         self.group = group
         self.name = name
         self.base_uri = 'consumers/{}/instances/{}'.format(self.group, self.name)
