@@ -18,11 +18,10 @@ DEFAULT_HOST = 'localhost:8082'
 class Client(object):
     def __init__(self, host=DEFAULT_HOST):
         self.host = host
-        self.get_host = self.host
 
     def _request(self, method, *endpoint, **kwargs):
         logging.info('requesting %s %s %s', method, endpoint, kwargs)
-        host = self.get_host()
+        host = self.host
         response = requests.request(method, '{}/{}'.format(host, '/'.join(endpoint)), **kwargs)
         logging.info('response from proxy %d: %s', response.status_code, response.text)
         if 200 <= response.status_code < 300:
@@ -42,7 +41,7 @@ class Client(object):
         return Consumer(self.host, group, response.json()['instance_id'], fmt)
 
     def get_consumer(self, group, fmt, name):
-        host = self.get_host()
+        host = self.host
         return Consumer(self.host, group, name, fmt)
 
 
