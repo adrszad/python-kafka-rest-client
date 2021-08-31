@@ -60,6 +60,10 @@ class _Producer(Client):
         self._produce_headers = {
             'Content-Type': 'application/vnd.kafka.{}.v2+json'.format(self._format)
         }
+        if self._format == 'binary':
+            self._encoder = lambda value: base64.b64encode(value)
+        else:
+            self._encoder = lambda value: value
 
     def produce(self, topic, *records):
         payload = self._gen_payload(records)
