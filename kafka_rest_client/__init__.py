@@ -23,12 +23,13 @@ class Client(object):
 
     def _request(self, method, *endpoint, **kwargs):
         host = self.host
+        url = '{}/{}'.format(host, '/'.join(endpoint))
         if self.api_key is not None:
-            logging.info('requesting %s %s %s %s', method, endpoint, kwargs, self.api_key)
-            response = requests.request(method, '{}/{}'.format(host, '/'.join(endpoint)), params=self.get_api_key(), **kwargs)
+            logging.info('requesting %s %s %s %s', method, url, kwargs, self.api_key)
+            response = requests.request(method, url, params=self.get_api_key(), **kwargs)
         else:
-            logging.info('requesting %s %s %s', method, endpoint, kwargs)
-            response = requests.request(method, '{}/{}'.format(host, '/'.join(endpoint)), **kwargs)
+            logging.info('requesting %s %s %s', method, url, kwargs)
+            response = requests.request(method, url, **kwargs)
         logging.info('response from proxy %d: %s', response.status_code, response.text)
         if 200 <= response.status_code < 300:
             return response
