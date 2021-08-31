@@ -61,7 +61,7 @@ class _Producer(Client):
             'Content-Type': 'application/vnd.kafka.{}.v2+json'.format(self._format)
         }
         if self._format == 'binary':
-            self._encoder = lambda value: base64.b64encode(value)
+            self._encoder = lambda value: base64.b64encode(value.encode('utf-8')).decode('utf-8')
         else:
             self._encoder = lambda value: value
 
@@ -74,7 +74,7 @@ class BinaryProducer(_Producer):
     _format = 'binary'
 
     def _gen_payload(self, records):
-        return {'records': [dict(value=self._encoder(r.pop('value').encode("utf-8")), key=self._encoder(r.pop('key').encode("utf-8"))) for r in records]}
+        return {'records': [dict(value=self._encoder(r.pop('value')), key=self._encoder(r.pop('key'))) for r in records]}
 
 
 class JsonProducer(_Producer):
