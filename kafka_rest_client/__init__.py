@@ -74,7 +74,7 @@ class BinaryProducer(_Producer):
     _format = 'binary'
 
     def _gen_payload(self, records):
-        return {'records': [dict(value=self._encoder(r.pop('value').encode("utf-8")), key=self._encoder(r.pop('key').encode("utf-8")) for r in records]}
+        return {'records': [dict(value=self._encoder(r.pop('value').encode("utf-8")), key=self._encoder(r.pop('key').encode("utf-8"))) for r in records]}
 
 
 class JsonProducer(_Producer):
